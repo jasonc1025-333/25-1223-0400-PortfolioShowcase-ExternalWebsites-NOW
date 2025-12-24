@@ -60,3 +60,7 @@ You need to bypass CORS restrictions
 You want to add authentication
 You want dynamic site configuration
 You need server-side data processing
+
+
+25-1224-0030
+how hard is it to create a webserver that can create a showcase-portfolio that embeds all the following interactive web-sites: such as 'http://76.102.42.17:5100/', 'http://76.102.42.17:5000/video', 'https://instructions.online/?id=4610-25-0922-0650-rq200-servoarms_small-now', 'http://quest.tny.cc/r200-ServoArmSm_Left-Test', etc..
