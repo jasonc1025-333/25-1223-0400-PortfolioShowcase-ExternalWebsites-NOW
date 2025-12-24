@@ -1,0 +1,48 @@
+# ============================================================================
+# Portfolio Dashboard - Python Dependencies
+# ============================================================================
+# This file lists all Python packages required to run the Flask backend server.
+# Install all dependencies using: pip install -r requirements.txt
+#
+# For development, consider using a virtual environment:
+#   python -m venv venv
+#   source venv/bin/activate  # On Windows: venv\Scripts\activate
+#   pip install -r requirements.txt
+# ============================================================================
+
+# Flask - Python web framework for building the backend server
+# Version 3.0.0 includes latest features and security updates
+# Provides routing, request handling, and template rendering
+Flask==3.0.0
+
+# flask-cors - Cross-Origin Resource Sharing (CORS) support for Flask
+# Version 4.0.0 provides stable CORS handling
+# Allows frontend applications to make API requests from different domains
+# Essential for allowing Vue.js frontend to communicate with Flask backend
+flask-cors==4.0.0
+
+# requests - HTTP library for making external requests
+# Version 2.31.0 includes security patches and stability improvements
+# Used for the proxy endpoint to fetch content from external sites
+# Helps bypass CORS restrictions by making server-side requests
+requests==2.31.0
+
+# ============================================================================
+# OPTIONAL DEPENDENCIES (uncomment if needed)
+# ============================================================================
+
+# gunicorn - Production-grade WSGI HTTP Server
+# Recommended for deploying Flask apps in production environments
+# gunicorn==21.2.0
+
+# python-dotenv - Load environment variables from .env file
+# Useful for managing configuration across different environments
+# python-dotenv==1.0.0
+
+# Flask-Limiter - Rate limiting extension for Flask
+# Helps prevent abuse by limiting API request rates
+# Flask-Limiter==3.5.0
+
+# Flask-Caching - Adds caching support to Flask applications
+# Can improve performance by caching frequently accessed data
+# Flask-Caching==2.1.0

@@ -9,9 +9,29 @@ Thumbs.db
 *.swo
 *~
 
+# Python Virtual Environment (IMPORTANT: Never commit venv!)
+venv/
+env/
+ENV/
+.venv/
+.env/
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python Distribution / Packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
 # Logs
 *.log
 npm-debug.log*
+
+# Environment Variables (may contain secrets)
+.env
 
 # Optional: If you want to keep this private
 # Uncomment the line below to ignore files with sensitive data

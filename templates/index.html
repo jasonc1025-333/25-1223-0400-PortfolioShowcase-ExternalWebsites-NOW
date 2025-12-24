@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--
+============================================================================
+Portfolio Dashboard - Main HTML Template
+============================================================================
+This HTML file serves as the main template for the portfolio dashboard.
+It loads Vue.js from CDN, includes all styles and scripts, and provides
+the structure for the Vue application to mount.
+
+Key Features:
+- Responsive viewport configuration
+- Vue.js 3 framework integration via CDN
+- Semantic HTML structure
+- Accessible markup
+- Dynamic data binding with Vue directives
+- Jinja2/Vue.js template conflict resolved using raw tags
+============================================================================
+-->
+
+<head>
+    <!-- Character encoding - UTF-8 supports all international characters -->
+    <meta charset="UTF-8">
+    
+    <!-- Viewport meta tag for responsive design
+         width=device-width: Match screen width
+         initial-scale=1.0: No initial zoom
+         This ensures proper rendering on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page title - appears in browser tab -->
+    <title>Portfolio Dashboard - Site Showcase</title>
+    
+    <!-- Load custom CSS stylesheet
+         url_for() is Flask's template function to generate URLs
+         Ensures correct path regardless of deployment location -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Load Vue.js 3 from CDN (Content Delivery Network)
+         unpkg.com provides npm packages via CDN
+         Using production-ready global build of Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+
+<body>
+    <!-- Main Vue Application Container
+         id="app" is where Vue mounts and takes control
+         All Vue directives (v-if, v-for, etc.) work within this element -->
+    
+    <!-- IMPORTANT: raw block tells Jinja2 to ignore Vue.js template syntax
+         Without this, Jinja2 will try to parse Vue's mustache syntax
+         causing template syntax errors -->
+    {% raw %}
+    <div id="app">
+        
+        <!-- ================================================================
+             HEADER SECTION
+             ================================================================
+             Main banner with title and description
+             Static content, no Vue directives needed -->
+        <header class="header">
+            <!-- Main heading with emoji icon -->
+            <h1>🌐 Portfolio Dashboard</h1>
+            
+            <!-- Subtitle describing the purpose -->
+            <p>Centralized hub for all portfolio websites and projects</p>
+        </header>
+
+        <!-- ================================================================
+             CONTROLS SECTION
+             ================================================================
+             Search box, category filters, and refresh button
+             All interactive with Vue data binding -->
+        <div class="controls">
+            
+            <!-- Search Box
+                 v-model creates two-way data binding with searchQuery
+                 User input automatically updates searchQuery in Vue data -->
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    v-model="searchQuery" 
+                    placeholder="🔍 Search sites by title, description, or URL..."
+                >
+            </div>
+            
+            <!-- Filter Buttons
+                 v-for loops through categories array to create buttons
+                 :key provides unique identifier for Vue's virtual DOM
+                 :class conditionally applies 'active' class
+                 @click handles button click events -->
+            <div class="filter-buttons">
+                <button 
+                    v-for="category in categories" 
+                    :key="category"
+                    class="filter-btn"
+                    :class="{ active: filterCategory === category }"
+                    @click="filterCategory = category"
+                >
+                    <!-- Display category name (capitalized via CSS) -->
+                    {{ category }}
+                </button>
+            </div>
+            
+            <!-- Refresh Button
+                 @click calls refreshSites() method when clicked -->
+            <button class="refresh-btn" @click="refreshSites">
+                🔄 Refresh
+            </button>
+            
+            <!-- View Toggle Button
+                 Switch between card view and embedded iframe view -->
+            <button class="refresh-btn" @click="toggleView">
+                {{ viewMode === 'cards' ? '🖼️ Show Embedded' : '📋 Show Cards' }}
+            </button>
+        </div>
+
+        <!-- ================================================================
+             LOADING STATE
+             ================================================================
+             Shown while fetching data from API
+             v-if conditionally renders based on loading state -->
+        <div v-if="loading" class="loading">
+            <p>⏳ Loading portfolio sites...</p>
+        </div>
+
+        <!-- ================================================================
+             ERROR STATE
+             ================================================================
+             Shown if API request fails
+             v-else-if checks if loading is false AND error exists -->
+        <div v-else-if="error" class="error">
+            <!-- Display error message dynamically -->
+            <p>❌ {{ error }}</p>
+            
+            <!-- Try again button to retry API call -->
+            <button class="btn btn-primary" @click="refreshSites" style="margin-top: 1rem;">
+                Try Again
+            </button>
+        </div>
+
+        <!-- ================================================================
+             EMPTY STATE
+             ================================================================
+             Shown when search/filter returns no results
+             v-else-if checks if no sites match current filters -->
+        <div v-else-if="filteredSites.length === 0" class="empty-state">
+            <h3>No Sites Found</h3>
+            
+            <!-- Dynamic message based on whether user is searching
+                 Ternary operator: condition ? if_true : if_false -->
+            <p>{{ searchQuery ? 'Try adjusting your search or filter.' : 'No sites available in this category.' }}</p>
+        </div>
+
+        <!-- ================================================================
+             EMBEDDED VIEW
+             ================================================================
+             Shows live sites embedded in iframes
+             v-if renders when viewMode is 'embedded' -->
+        <div v-else-if="viewMode === 'embedded'" class="embedded-view">
+            <div 
+                v-for="site in filteredSites" 
+                :key="site.id"
+                class="embedded-frame"
+            >
+                <!-- Frame Header with site info -->
+                <div class="frame-header">
+                    <h3 class="frame-title">{{ site.title }}</h3>
+                    <div class="frame-actions">
+                        <button class="btn btn-sm btn-secondary" @click="openSite(site)" title="Open in new tab">
+                            🔗 Open
+                        </button>
+                        <button class="btn btn-sm btn-secondary" @click="copyUrl(site.url)" title="Copy URL">
+                            📋
+                        </button>
+                    </div>
+                </div>
+                <!-- Live iframe showing the actual site -->
+                <iframe 
+                    :src="site.url" 
+                    :title="site.title"
+                    frameborder="0"
+                    allowfullscreen
+                    class="site-iframe"
+                ></iframe>
+            </div>
+        </div>
+
+        <!-- ================================================================
+             SITES GRID (CARD VIEW)
+             ================================================================
+             Main content - displays all portfolio site cards
+             v-else renders when loading=false, no error, and sites exist -->
+        <div v-else class="sites-grid">
+            
+            <!-- Site Card - loops through filteredSites computed property
+                 v-for creates a card for each site
+                 :key uses site.id for Vue's reactivity system
+                 @click opens modal with site details -->
+            <div 
+                v-for="site in filteredSites" 
+                :key="site.id"
+                class="site-card"
+                @click="selectSite(site)"
+            >
+                <!-- Card Header Section -->
+                <div class="site-header">
+                    <div>
+                        <!-- Site title - mustache syntax (double curly braces) for text interpolation -->
+                        <h3 class="site-title">{{ site.title }}</h3>
+                        
+                        <!-- Category Badge
+                             :style binds inline styles dynamically
+                             getCategoryColor() method returns color based on category -->
+                        <span 
+                            class="category-badge" 
+                            :style="{ backgroundColor: getCategoryColor(site.category) }"
+                        >
+                            {{ site.category }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Site Description -->
+                <p class="site-description">{{ site.description }}</p>
+                
+                <!-- Site URL Link
+                     :href dynamically binds URL
+                     target="_blank" opens in new tab
+                     @click.stop prevents card click event from firing -->
+                <a 
+                    :href="site.url" 
+                    class="site-url" 
+                    target="_blank"
+                    @click.stop
+                >
+                    {{ site.url }}
+                </a>
+                
+                <!-- Action Buttons -->
+                <div class="site-actions">
+                    <!-- Open Site Button
+                         @click.stop prevents card click, calls openSite() -->
+                    <button 
+                        class="btn btn-primary" 
+                        @click.stop="openSite(site)"
+                    >
+                        🚀 Open Site
+                    </button>
+                    
+                    <!-- Copy URL Button
+                         @click.stop prevents card click, calls copyUrl() -->
+                    <button 
+                        class="btn btn-secondary" 
+                        @click.stop="copyUrl(site.url)"
+                    >
+                        📋 Copy URL
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================
+             MODAL
+             ================================================================
+             Overlay modal for detailed site information
+             v-if conditionally renders when a site is selected
+             @click on overlay closes modal (clicking outside) -->
+        <div v-if="selectedSite" class="modal-overlay" @click="closeModal">
+            
+            <!-- Modal Content Box
+                 @click.stop prevents clicks inside modal from closing it -->
+            <div class="modal" @click.stop>
+                
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <!-- Site title as modal heading -->
+                    <h2>{{ selectedSite.title }}</h2>
+                    
+                    <!-- Close Button (X) -->
+                    <button class="close-btn" @click="closeModal">✕</button>
+                </div>
+                
+                <!-- Modal Content -->
+                <div class="modal-content">
+                    <!-- Category Information -->
+                    <p><strong>Category:</strong> {{ selectedSite.category }}</p>
+                    
+                    <!-- Description -->
+                    <p><strong>Description:</strong> {{ selectedSite.description }}</p>
+                    
+                    <!-- URL with clickable link
+                         :href dynamically sets link target -->
+                    <p><strong>URL:</strong> <a :href="selectedSite.url" target="_blank">{{ selectedSite.url }}</a></p>
+                    
+                    <!-- Action Buttons -->
+                    <div class="site-actions" style="margin-top: 1.5rem;">
+                        <button class="btn btn-primary" @click="openSite(selectedSite)">
+                            🚀 Open Site
+                        </button>
+                        <button class="btn btn-secondary" @click="copyUrl(selectedSite.url)">
+                            📋 Copy URL
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================
+             FOOTER
+             ================================================================
+             Bottom section with metadata and statistics -->
+        <footer class="footer">
+            <!-- Last Updated Timestamp
+                 v-if only shows if lastUpdated exists
+                 formatDate() method formats the date nicely -->
+            <p v-if="lastUpdated">
+                Last updated: {{ formatDate(lastUpdated) }}
+            </p>
+            
+            <!-- Statistics and Credits
+                 sites.length shows total number of sites -->
+            <p style="margin-top: 0.5rem;">
+                Powered by Flask + Vue.js | Total Sites: {{ sites.length }}
+            </p>
+        </footer>
+    </div>
+    {% endraw %}
+    <!-- End of raw block - Jinja2 resumes processing here -->
+
+    <!-- Load Vue.js Application
+         url_for() generates correct path to app.js
+         Must be loaded AFTER the DOM elements exist
+         This script initializes Vue and mounts it to #app -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+<!--
+============================================================================
+Vue Directive Reference (used in this template):
+============================================================================
+
+v-model:
+    Two-way data binding between form inputs and Vue data
+    Example: <input v-model="searchQuery">
+
+v-if / v-else-if / v-else:
+    Conditional rendering - elements only exist in DOM if condition is true
+    Example: <div v-if="loading">Loading...</div>
+
+v-for:
+    Loop through arrays/objects to render lists
+    Example: <div v-for="item in items" :key="item.id">
+
+:key (v-bind:key):
+    Unique identifier for elements in v-for loops
+    Helps Vue track element identity for efficient updates
+
+@click (v-on:click):
+    Event listener for click events
+    Example: <button @click="methodName">
+
+@click.stop:
+    Click event with .stop modifier prevents event propagation
+    Stops event from bubbling up to parent elements
+
+Mustache Syntax (double curly braces):
+    Text interpolation in Vue templates
+    Displays data values in text content
+    Note: Cannot be shown here as example due to Jinja2 parsing
+
+:attribute (v-bind:attribute):
+    Dynamically bind attribute values
+    Example: :href="site.url", :class="{ active: isActive }"
+
+:style (v-bind:style):
+    Dynamically bind inline styles
+    Example: :style="{ color: myColor }"
+
+============================================================================
+Best Practices Demonstrated:
+============================================================================
+
+1. Semantic HTML: Using proper tags (header, footer, section-like divs)
+2. Accessibility: Descriptive text, proper heading hierarchy
+3. Performance: Vue loaded from CDN, lazy rendering with v-if
+4. User Experience: Loading states, error handling, empty states
+5. Maintainability: Clear structure, commented sections
+6. Security: target="_blank" for external links, event modifiers
+
+Note: The main app content is wrapped in Jinja2 raw tags to prevent 
+template conflicts between Flask's Jinja2 and Vue.js syntax.
+
+============================================================================
+-->
+
+</html>

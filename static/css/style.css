@@ -1,0 +1,573 @@
+/* ============================================================================
+   Portfolio Dashboard - CSS Stylesheet
+   ============================================================================
+   This stylesheet provides all visual styling for the portfolio dashboard.
+   It includes responsive design, animations, and modern UI components.
+   
+   Structure:
+   1. CSS Variables (Design Tokens)
+   2. Base Styles & Reset
+   3. Header Section
+   4. Controls & Filters
+   5. Loading & Error States
+   6. Sites Grid & Cards
+   7. Modal Component
+   8. Footer
+   9. Responsive Design
+   10. Animations
+   ============================================================================ */
+
+/* ============================================================================
+   1. CSS VARIABLES (DESIGN TOKENS)
+   ============================================================================
+   Central color and styling definitions for easy theme customization.
+   Using CSS custom properties allows for dynamic theming and consistency. */
+
+:root {
+    /* Primary color palette - Blues for main UI elements */
+    --primary-color: #3b82f6;      /* Bright blue for primary actions */
+    --secondary-color: #1e40af;    /* Darker blue for hover states */
+    
+    /* Status colors for visual feedback */
+    --success-color: #10b981;      /* Green for success states */
+    --warning-color: #f59e0b;      /* Orange for warnings */
+    --danger-color: #ef4444;       /* Red for errors */
+    
+    /* Background colors */
+    --dark-bg: #1f2937;            /* Dark background for contrast */
+    --card-bg: #ffffff;            /* White cards for content */
+    
+    /* Text colors for hierarchy */
+    --text-primary: #111827;       /* Dark gray for main text */
+    --text-secondary: #6b7280;     /* Medium gray for secondary text */
+    
+    /* Border and shadow styles */
+    --border-color: #e5e7eb;       /* Light gray for borders */
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================================================
+   2. BASE STYLES & RESET
+   ============================================================================
+   Reset default browser styles and set foundation for all elements */
+
+/* Universal selector - applies to all elements */
+* {
+    margin: 0;                     /* Remove default margins */
+    padding: 0;                    /* Remove default padding */
+    box-sizing: border-box;        /* Include padding/border in element width */
+}
+
+/* Body - Main container for entire page */
+body {
+    /* Use system fonts for better performance and native feel */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    
+    /* Gradient background for visual appeal */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    
+    /* Ensure full viewport height */
+    min-height: 100vh;
+    
+    /* Padding around content */
+    padding: 2rem;
+    
+    /* Default text color */
+    color: var(--text-primary);
+}
+
+/* Main Vue app container */
+#app {
+    max-width: 1400px;             /* Limit width for readability */
+    margin: 0 auto;                /* Center the content */
+}
+
+/* ============================================================================
+   3. HEADER SECTION
+   ============================================================================
+   Top banner with title and description */
+
+.header {
+    background: white;             /* White background for contrast */
+    padding: 2rem;                 /* Internal spacing */
+    border-radius: 1rem;           /* Rounded corners for modern look */
+    box-shadow: var(--shadow-lg);  /* Elevated shadow effect */
+    margin-bottom: 2rem;           /* Space below header */
+}
+
+/* Main heading with gradient text effect */
+.header h1 {
+    font-size: 2.5rem;             /* Large, prominent text */
+    font-weight: 700;              /* Bold weight */
+    margin-bottom: 0.5rem;         /* Space below heading */
+    
+    /* Gradient text effect - requires multiple properties */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text; /* Clip background to text (Safari) */
+    -webkit-text-fill-color: transparent; /* Make text transparent (Safari) */
+    background-clip: text;         /* Standard property */
+}
+
+/* Subtitle text */
+.header p {
+    color: var(--text-secondary);  /* Muted color for secondary text */
+    font-size: 1.1rem;             /* Slightly larger than body text */
+}
+
+/* ============================================================================
+   4. CONTROLS & FILTERS
+   ============================================================================
+   Search box, filter buttons, and refresh functionality */
+
+.controls {
+    background: white;             /* White background */
+    padding: 1.5rem;               /* Internal spacing */
+    border-radius: 1rem;           /* Rounded corners */
+    box-shadow: var(--shadow);     /* Subtle shadow */
+    margin-bottom: 2rem;           /* Space below controls */
+    display: flex;                 /* Flexbox for layout */
+    gap: 1rem;                     /* Space between items */
+    flex-wrap: wrap;               /* Wrap to multiple lines on small screens */
+    align-items: center;           /* Vertical alignment */
+}
+
+/* Search box container - grows to fill space */
+.search-box {
+    flex: 1;                       /* Grow to fill available space */
+    min-width: 250px;              /* Minimum width for usability */
+}
+
+/* Search input field */
+.search-box input {
+    width: 100%;                   /* Fill container width */
+    padding: 0.75rem 1rem;         /* Internal spacing */
+    border: 2px solid var(--border-color); /* Light border */
+    border-radius: 0.5rem;         /* Rounded corners */
+    font-size: 1rem;               /* Readable text size */
+    transition: all 0.3s;          /* Smooth transitions */
+}
+
+/* Search input focus state - shows user interaction */
+.search-box input:focus {
+    outline: none;                 /* Remove default outline */
+    border-color: var(--primary-color); /* Highlight border */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); /* Glow effect */
+}
+
+/* Container for filter buttons */
+.filter-buttons {
+    display: flex;                 /* Flexbox layout */
+    gap: 0.5rem;                   /* Space between buttons */
+    flex-wrap: wrap;               /* Wrap buttons on small screens */
+}
+
+/* Individual filter button */
+.filter-btn {
+    padding: 0.5rem 1rem;          /* Internal spacing */
+    border: 2px solid var(--border-color); /* Border for definition */
+    background: white;             /* White background */
+    border-radius: 0.5rem;         /* Rounded corners */
+    cursor: pointer;               /* Pointer cursor on hover */
+    font-size: 0.9rem;             /* Slightly smaller text */
+    font-weight: 500;              /* Medium weight */
+    transition: all 0.3s;          /* Smooth transitions */
+    text-transform: capitalize;    /* Capitalize first letter */
+}
+
+/* Filter button hover state */
+.filter-btn:hover {
+    border-color: var(--primary-color); /* Highlight border */
+    background: rgba(59, 130, 246, 0.05); /* Subtle background tint */
+}
+
+/* Active filter button - shows current selection */
+.filter-btn.active {
+    background: var(--primary-color); /* Primary color background */
+    color: white;                  /* White text for contrast */
+    border-color: var(--primary-color); /* Matching border */
+}
+
+/* Refresh button */
+.refresh-btn {
+    padding: 0.75rem 1.5rem;       /* Larger padding for prominence */
+    background: var(--primary-color); /* Primary color background */
+    color: white;                  /* White text */
+    border: none;                  /* No border */
+    border-radius: 0.5rem;         /* Rounded corners */
+    cursor: pointer;               /* Pointer cursor */
+    font-size: 1rem;               /* Standard text size */
+    font-weight: 500;              /* Medium weight */
+    transition: all 0.3s;          /* Smooth transitions */
+}
+
+/* Refresh button hover state */
+.refresh-btn:hover {
+    background: var(--secondary-color); /* Darker shade on hover */
+    transform: translateY(-2px);   /* Lift effect */
+    box-shadow: var(--shadow);     /* Add shadow for depth */
+}
+
+/* ============================================================================
+   5. LOADING AND ERROR STATES
+   ============================================================================
+   Visual feedback for async operations */
+
+.loading, .error {
+    background: white;             /* White background */
+    padding: 3rem;                 /* Generous padding */
+    border-radius: 1rem;           /* Rounded corners */
+    text-align: center;            /* Center text */
+    box-shadow: var(--shadow);     /* Subtle shadow */
+}
+
+/* Loading state - blue color to indicate progress */
+.loading {
+    color: var(--primary-color);   /* Primary color for loading */
+    font-size: 1.2rem;             /* Larger text */
+}
+
+/* Error state - red color to indicate problem */
+.error {
+    color: var(--danger-color);    /* Red for errors */
+}
+
+/* ============================================================================
+   6. SITES GRID & CARDS
+   ============================================================================
+   Layout for portfolio site cards */
+
+/* Grid container - responsive columns */
+.sites-grid {
+    display: grid;                 /* CSS Grid layout */
+    /* Auto-fill creates as many columns as fit, min 350px, max equal width */
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;                   /* Space between cards */
+}
+
+/* Individual site card */
+.site-card {
+    background: white;             /* White background */
+    border-radius: 1rem;           /* Rounded corners */
+    padding: 1.5rem;               /* Internal spacing */
+    box-shadow: var(--shadow);     /* Subtle shadow */
+    transition: all 0.3s;          /* Smooth transitions */
+    cursor: pointer;               /* Pointer cursor for clickability */
+    border: 2px solid transparent; /* Transparent border (for hover) */
+}
+
+/* Site card hover state - elevate and highlight */
+.site-card:hover {
+    transform: translateY(-5px);   /* Lift up effect */
+    box-shadow: var(--shadow-lg);  /* Larger shadow for depth */
+    border-color: var(--primary-color); /* Highlight border */
+}
+
+/* Card header with title and badge */
+.site-header {
+    display: flex;                 /* Flexbox layout */
+    justify-content: space-between; /* Space between title and badge */
+    align-items: start;            /* Align to top */
+    margin-bottom: 1rem;           /* Space below header */
+}
+
+/* Site title */
+.site-title {
+    font-size: 1.3rem;             /* Large, readable text */
+    font-weight: 600;              /* Semi-bold weight */
+    color: var(--text-primary);    /* Dark text color */
+    margin-bottom: 0.5rem;         /* Space below title */
+}
+
+/* Category badge */
+.category-badge {
+    padding: 0.25rem 0.75rem;      /* Compact padding */
+    border-radius: 1rem;           /* Pill shape */
+    font-size: 0.75rem;            /* Small text */
+    font-weight: 600;              /* Bold weight */
+    color: white;                  /* White text for contrast */
+    text-transform: uppercase;     /* All caps for emphasis */
+}
+
+/* Site description text */
+.site-description {
+    color: var(--text-secondary);  /* Muted color */
+    margin-bottom: 1rem;           /* Space below description */
+    line-height: 1.6;              /* Comfortable line height */
+}
+
+/* Site URL link */
+.site-url {
+    color: var(--primary-color);   /* Primary color for links */
+    font-size: 0.9rem;             /* Slightly smaller text */
+    word-break: break-all;         /* Break long URLs */
+    margin-bottom: 1rem;           /* Space below URL */
+    display: block;                /* Block display for full width */
+}
+
+/* Action buttons container */
+.site-actions {
+    display: flex;                 /* Flexbox layout */
+    gap: 0.5rem;                   /* Space between buttons */
+}
+
+/* Base button styles */
+.btn {
+    padding: 0.5rem 1rem;          /* Internal spacing */
+    border-radius: 0.5rem;         /* Rounded corners */
+    border: none;                  /* No border */
+    cursor: pointer;               /* Pointer cursor */
+    font-size: 0.9rem;             /* Text size */
+    font-weight: 500;              /* Medium weight */
+    transition: all 0.3s;          /* Smooth transitions */
+}
+
+/* Primary button style */
+.btn-primary {
+    background: var(--primary-color); /* Primary color background */
+    color: white;                  /* White text */
+}
+
+/* Primary button hover state */
+.btn-primary:hover {
+    background: var(--secondary-color); /* Darker shade */
+}
+
+/* Secondary button style */
+.btn-secondary {
+    background: var(--border-color); /* Light gray background */
+    color: var(--text-primary);    /* Dark text */
+}
+
+/* Secondary button hover state */
+.btn-secondary:hover {
+    background: var(--text-secondary); /* Darker gray */
+    color: white;                  /* White text for contrast */
+}
+
+/* ============================================================================
+   7. MODAL COMPONENT
+   ============================================================================
+   Overlay modal for detailed site information */
+
+/* Modal overlay - covers entire screen */
+.modal-overlay {
+    position: fixed;               /* Fixed positioning */
+    top: 0;                        /* Align to top */
+    left: 0;                       /* Align to left */
+    right: 0;                      /* Align to right */
+    bottom: 0;                     /* Align to bottom */
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    display: flex;                 /* Flexbox for centering */
+    align-items: center;           /* Vertical center */
+    justify-content: center;       /* Horizontal center */
+    z-index: 1000;                 /* Above all other content */
+    padding: 2rem;                 /* Padding around modal */
+}
+
+/* Modal content box */
+.modal {
+    background: white;             /* White background */
+    border-radius: 1rem;           /* Rounded corners */
+    padding: 2rem;                 /* Internal spacing */
+    max-width: 600px;              /* Maximum width */
+    width: 100%;                   /* Full width up to max */
+    box-shadow: var(--shadow-lg);  /* Large shadow for depth */
+}
+
+/* Modal header with title and close button */
+.modal-header {
+    display: flex;                 /* Flexbox layout */
+    justify-content: space-between; /* Space between items */
+    align-items: center;           /* Vertical alignment */
+    margin-bottom: 1.5rem;         /* Space below header */
+}
+
+/* Modal title */
+.modal-header h2 {
+    font-size: 1.5rem;             /* Large text */
+    color: var(--text-primary);    /* Dark text color */
+}
+
+/* Close button */
+.close-btn {
+    background: none;              /* No background */
+    border: none;                  /* No border */
+    font-size: 1.5rem;             /* Large close icon */
+    cursor: pointer;               /* Pointer cursor */
+    color: var(--text-secondary);  /* Muted color */
+    padding: 0.25rem 0.5rem;       /* Minimal padding */
+}
+
+/* Close button hover state */
+.close-btn:hover {
+    color: var(--text-primary);    /* Darker color on hover */
+}
+
+/* Modal content paragraphs */
+.modal-content p {
+    margin-bottom: 1rem;           /* Space between paragraphs */
+    line-height: 1.6;              /* Comfortable line height */
+}
+
+/* Bold text in modal */
+.modal-content strong {
+    color: var(--text-primary);    /* Dark color for emphasis */
+}
+
+/* ============================================================================
+   8. FOOTER
+   ============================================================================
+   Bottom section with metadata */
+
+.footer {
+    background: white;             /* White background */
+    padding: 1.5rem;               /* Internal spacing */
+    border-radius: 1rem;           /* Rounded corners */
+    box-shadow: var(--shadow);     /* Subtle shadow */
+    margin-top: 2rem;              /* Space above footer */
+    text-align: center;            /* Center text */
+    color: var(--text-secondary);  /* Muted text color */
+}
+
+/* ============================================================================
+   9. RESPONSIVE DESIGN
+   ============================================================================
+   Adjustments for mobile devices */
+
+/* Tablet and mobile screens (768px and below) */
+@media (max-width: 768px) {
+    /* Reduce body padding on small screens */
+    body {
+        padding: 1rem;
+    }
+    
+    /* Smaller header text on mobile */
+    .header h1 {
+        font-size: 1.8rem;
+    }
+    
+    /* Stack controls vertically on mobile */
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    /* Full width search box on mobile */
+    .search-box {
+        width: 100%;
+    }
+    
+    /* Single column grid on mobile */
+    .sites-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================================================
+   10. ANIMATIONS
+   ============================================================================
+   Smooth animations for better user experience */
+
+/* Fade in animation for cards */
+@keyframes fadeIn {
+    from {
+        opacity: 0;                /* Start invisible */
+        transform: translateY(20px); /* Start below */
+    }
+    to {
+        opacity: 1;                /* End fully visible */
+        transform: translateY(0);  /* End at normal position */
+    }
+}
+
+/* Apply fade in animation to site cards */
+.site-card {
+    animation: fadeIn 0.5s ease-out; /* 0.5s duration, ease-out timing */
+}
+
+/* ============================================================================
+   11. EMPTY STATE
+   ============================================================================
+   Display when no sites match filters */
+
+.empty-state {
+    background: white;             /* White background */
+    padding: 3rem;                 /* Generous padding */
+    border-radius: 1rem;           /* Rounded corners */
+    text-align: center;            /* Center text */
+    box-shadow: var(--shadow);     /* Subtle shadow */
+}
+
+/* Empty state heading */
+.empty-state h3 {
+    color: var(--text-primary);    /* Dark text */
+    margin-bottom: 0.5rem;         /* Space below heading */
+}
+
+/* Empty state description */
+.empty-state p {
+    color: var(--text-secondary);  /* Muted text */
+}
+
+/* ============================================================================
+   12. EMBEDDED IFRAME VIEW
+   ============================================================================
+   Full-width live site previews in iframes */
+
+.embedded-view {
+    display: flex;                 /* Flexbox for vertical stacking */
+    flex-direction: column;        /* Stack iframes vertically */
+    gap: 2rem;                     /* Space between iframe containers */
+}
+
+.embedded-frame {
+    background: white;             /* White background */
+    border-radius: 1rem;           /* Rounded corners */
+    box-shadow: var(--shadow-lg);  /* Elevated shadow */
+    overflow: hidden;              /* Contain iframe borders */
+}
+
+.frame-header {
+    display: flex;                 /* Flexbox layout */
+    justify-content: space-between; /* Space between title and actions */
+    align-items: center;           /* Vertical alignment */
+    padding: 1rem 1.5rem;          /* Internal spacing */
+    background: var(--primary-color); /* Primary color background */
+    color: white;                  /* White text */
+}
+
+.frame-title {
+    font-size: 1.2rem;             /* Large title */
+    font-weight: 600;              /* Semi-bold */
+    margin: 0;                     /* Remove default margin */
+}
+
+.frame-actions {
+    display: flex;                 /* Flexbox for buttons */
+    gap: 0.5rem;                   /* Space between buttons */
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;     /* Smaller padding */
+    font-size: 0.875rem;           /* Smaller text */
+}
+
+.site-iframe {
+    width: 100%;                   /* Full width */
+    height: 600px;                 /* Fixed height for viewing */
+    border: none;                  /* No border */
+    display: block;                /* Block display */
+    background: white;             /* White background */
+}
+
+/* Responsive iframe heights */
+@media (max-width: 768px) {
+    .site-iframe {
+        height: 400px;             /* Shorter on mobile */
+    }
+}
+
+/* ============================================================================
+   END OF STYLESHEET
+   ============================================================================ */
