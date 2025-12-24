@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Showcase Dashboard</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #app {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1300px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .site-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .site-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.3);
+        }
+
+        .site-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .site-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            flex-grow: 1;
+        }
+
+        .site-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-loading {
+            background: #fbbf24;
+        }
+
+        .status-success {
+            background: #10b981;
+        }
+
+        .status-error {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .site-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .iframe-container {
+            position: relative;
+            height: 500px;
+            background: #f3f4f6;
+        }
+
+        .iframe-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .site-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .error-message {
+            padding: 30px;
+            text-align: center;
+            color: #ef4444;
+        }
+
+        .error-message h3 {
+            margin-bottom: 10px;
+        }
+
+        .error-message p {
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding: 20px;
+            opacity: 0.8;
+        }
+
+        .fullscreen-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1000;
+            background: white;
+        }
+
+        .fullscreen-mode .iframe-container {
+            height: 100vh;
+        }
+
+        .layout-toggle {
+            display: flex;
+            gap: 5px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .layout-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .layout-btn.active {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .layout-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1>🎯 Portfolio Showcase Dashboard</h1>
+            <p>Interactive Multi-Site Display</p>
+        </div>
+
+        <div class="controls">
+            <button class="btn" @click="refreshAll">🔄 Refresh All Sites</button>
+            <button class="btn" @click="toggleAutoRefresh">
+                {{ autoRefresh ? '⏸️ Stop Auto-Refresh' : '▶️ Auto-Refresh' }}
+            </button>
+            <div class="layout-toggle">
+                <button class="layout-btn" :class="{active: layout === 'grid'}" @click="layout = 'grid'">
+                    📊 Grid
+                </button>
+                <button class="layout-btn" :class="{active: layout === 'list'}" @click="layout = 'list'">
+                    📋 List
+                </button>
+            </div>
+        </div>
+
+        <div :class="layout === 'grid' ? 'grid' : 'list'">
+            <div v-for="site in sites" :key="site.id" class="site-card" :class="{'fullscreen-mode': site.fullscreen}">
+                <div class="site-header">
+                    <div class="site-title">{{ site.title }}</div>
+                    <div class="site-status">
+                        <div class="status-dot" :class="{
+                            'status-loading': site.status === 'loading',
+                            'status-success': site.status === 'loaded',
+                            'status-error': site.status === 'error'
+                        }"></div>
+                        <span>{{ site.status === 'loading' ? 'Loading...' : site.status === 'loaded' ? 'Live' : 'Error' }}</span>
+                    </div>
+                    <div class="site-actions">
+                        <button class="icon-btn" @click="refreshSite(site)" title="Refresh">
+                            🔄
+                        </button>
+                        <button class="icon-btn" @click="openInNewTab(site.url)" title="Open in new tab">
+                            ↗️
+                        </button>
+                        <button class="icon-btn" @click="toggleFullscreen(site)" :title="site.fullscreen ? 'Exit fullscreen' : 'Fullscreen'">
+                            {{ site.fullscreen ? '⊗' : '⛶' }}
+                        </button>
+                    </div>
+                </div>
+                <div class="iframe-container">
+                    <div v-if="site.status === 'loading'" class="iframe-loading">
+                        <div class="spinner"></div>
+                        <p>Loading {{ site.title }}...</p>
+                    </div>
+                    <div v-else-if="site.status === 'error'" class="error-message">
+                        <h3>⚠️ Unable to Load Site</h3>
+                        <p>This site may be blocking iframe embedding (CORS/X-Frame-Options).</p>
+                        <div class="error-actions">
+                            <button class="btn" @click="refreshSite(site)">Try Again</button>
+                            <button class="btn" @click="openInNewTab(site.url)">Open in New Tab</button>
+                        </div>
+                    </div>
+                    <iframe 
+                        v-show="site.status === 'loaded'"
+                        :src="site.currentUrl" 
+                        :title="site.title"
+                        class="site-iframe"
+                        @load="onIframeLoad(site)"
+                        @error="onIframeError(site)"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+                        referrerpolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>💡 <strong>Tip:</strong> Click the ↗️ button to open any site in a new tab if it doesn't load here.</p>
+            <p>All sites are fully interactive - video streams in real-time, buttons work, forms are functional!</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Created: {{ new Date().toLocaleDateString() }}</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    layout: 'grid',
+                    autoRefresh: false,
+                    autoRefreshInterval: null,
+                    sites: [
+                        {
+                            id: 1,
+                            title: '🖥️ Main Application',
+                            url: 'http://76.102.42.17:5100/',
+                            currentUrl: 'http://76.102.42.17:5100/',
+                            status: 'loading',
+                            fullscreen: false
+                        },
+                        {
+                            id: 2,
+                            title: '📹 Video Stream',
+                            url: 'http://76.102.42.17:5000/video',
+                            currentUrl: 'http://76.102.42.17:5000/video',
+                            status: 'loading',
+                            fullscreen: false
+                        },
+                        {
+                            id: 3,
+                            title: '📖 Instructions Online',
+                            url: 'https://instructions.online/?id=4610-25-0922-0650-rq200-servoarms_small-now',
+                            currentUrl: 'https://instructions.online/?id=4610-25-0922-0650-rq200-servoarms_small-now',
+                            status: 'loading',
+                            fullscreen: false
+                        },
+                        {
+                            id: 4,
+                            title: '🤖 Servo Arm Test',
+                            url: 'http://quest.tny.cc/r200-ServoArmSm_Left-Test',
+                            currentUrl: 'http://quest.tny.cc/r200-ServoArmSm_Left-Test',
+                            status: 'loading',
+                            fullscreen: false
+                        }
+                    ]
+                };
+            },
+            mounted() {
+                // Set timeout to detect loading failures
+                this.sites.forEach(site => {
+                    setTimeout(() => {
+                        if (site.status === 'loading') {
+                            // Still loading after 10 seconds, might be an issue
+                            console.warn(`Site ${site.title} is taking longer than expected to load`);
+                        }
+                    }, 10000);
+                });
+            },
+            methods: {
+                onIframeLoad(site) {
+                    console.log(`✅ ${site.title} loaded successfully`);
+                    site.status = 'loaded';
+                },
+                onIframeError(site) {
+                    console.error(`❌ ${site.title} failed to load`);
+                    site.status = 'error';
+                },
+                refreshSite(site) {
+                    console.log(`🔄 Refreshing ${site.title}`);
+                    site.status = 'loading';
+                    // Force iframe reload by adding timestamp
+                    const separator = site.url.includes('?') ? '&' : '?';
+                    site.currentUrl = site.url + separator + '_t=' + Date.now();
+                },
+                refreshAll() {
+                    console.log('🔄 Refreshing all sites');
+                    this.sites.forEach(site => this.refreshSite(site));
+                },
+                openInNewTab(url) {
+                    window.open(url, '_blank');
+                },
+                toggleFullscreen(site) {
+                    // Exit fullscreen for all other sites
+                    this.sites.forEach(s => {
+                        if (s.id !== site.id) {
+                            s.fullscreen = false;
+                        }
+                    });
+                    site.fullscreen = !site.fullscreen;
+                },
+                toggleAutoRefresh() {
+                    this.autoRefresh = !this.autoRefresh;
+                    if (this.autoRefresh) {
+                        console.log('▶️ Auto-refresh enabled (every 5 minutes)');
+                        this.autoRefreshInterval = setInterval(() => {
+                            this.refreshAll();
+                        }, 300000); // 5 minutes
+                    } else {
+                        console.log('⏸️ Auto-refresh disabled');
+                        if (this.autoRefreshInterval) {
+                            clearInterval(this.autoRefreshInterval);
+                            this.autoRefreshInterval = null;
+                        }
+                    }
+                }
+            },
+            beforeUnmount() {
+                if (this.autoRefreshInterval) {
+                    clearInterval(this.autoRefreshInterval);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

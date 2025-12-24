@@ -1,0 +1,62 @@
+
+Option B: Flask Backend + Vue.js Frontend 🔄
+Architecture: Two-tier system (backend server + frontend app)
+
+How It Works:
+┌─────────────┐      ┌─────────────┐      ┌──────────────┐
+│   Browser   │ ←──→ │Flask Server │ ←──→ │ External     │
+│  (Vue.js)   │      │  (Python)   │      │ Sites/APIs   │
+└─────────────┘      └─────────────┘      └──────────────┘
+
+Structure:
+portfolio-dashboard/
+├── app.py                 # Flask backend server
+├── requirements.txt       # Python dependencies (Flask)
+├── static/
+│   ├── js/
+│   │   └── app.js        # Vue.js app
+│   └── css/
+│       └── style.css
+└── templates/
+    └── index.html        # Main HTML (serves Vue app)
+
+What Flask Does:
+Serves the Vue.js application (HTML/CSS/JS files)
+Provides API endpoints (optional, for dynamic data)
+Acts as a proxy (can bypass CORS issues)
+Handles authentication (if needed)
+Example Code:
+# app.py
+from flask import Flask, render_template, jsonify
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/api/sites')
+def get_sites():
+    sites = [
+        {'url': 'http://76.102.42.17:5100/', 'title': 'Main'},
+        # ... more sites
+    ]
+    return jsonify(sites)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080)
+
+Pros:
+✅ Can proxy requests (solve CORS problems)
+✅ Can add authentication/security
+✅ Can dynamically manage site list
+✅ Server-side processing capability
+Cons:
+⚠️ Requires running a server
+⚠️ More complex deployment
+⚠️ Need Python installed
+When to Use:
+You need to bypass CORS restrictions
+You want to add authentication
+You want dynamic site configuration
+You need server-side data processing
